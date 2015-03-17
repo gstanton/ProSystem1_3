@@ -1,12 +1,5 @@
-# Prosystem Emulator Version 1.3
-# Atari 7800 Emulator written by Greg Stanton
-# 
-# Written in C++ using the Win32 API and DirectX
-# Version 1.0 Completed 2005
-# 
-# The executable still runs on Window Machines, but 
-# the code does not compile on modern window machines!
-# To compile, use Visual Studio 6 on a Windows XP 32-bit 
-# machine or eariler version of Windows (Windows 2000, 
-# Window 98SE, etc)
-# 
+## Prosystem Emulator Version 1.3
+The ProSystem Emulator is an Atari 7800 emulator for the PC and Windows OS. The emulator was written in C++ using the Windows API and DirectX. It emulates the Atari 7800 NTSC and PAL TV standards. The emulator was originally written by Greg Stanton and then updated by others.
+
+See the project web site for more details:
+http://gstanton.github.io/ProSystem1_3/
