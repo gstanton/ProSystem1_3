@@ -4,5 +4,9 @@
 # Written in C++ using the Win32 API and DirectX
 # Version 1.0 Completed 2005
 # 
-# Code does not compile on modern window machines!
+# The executable still runs on Window Machines, but 
+# the code does not compile on modern window machines!
+# To compile, use Visual Studio 6 on a Windows XP 32-bit 
+# machine or eariler version of Windows (Windows 2000, 
+# Window 98SE, etc)
 # 
