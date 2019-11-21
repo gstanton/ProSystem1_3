@@ -70,6 +70,12 @@ static bool cartridge_CC2(const byte* header) {
 // GetBankOffset
 // ----------------------------------------------------------------------------
 static uint cartridge_GetBankOffset(byte bank) {
+  if ((cartridge_type == CARTRIDGE_TYPE_SUPERCART || cartridge_type == CARTRIDGE_TYPE_SUPERCART_ROM || cartridge_type == CARTRIDGE_TYPE_SUPERCART_RAM) && cartridge_size <= 65536) {
+    // for some of these carts, there are only 4 banks. in this case we ignore bit 3
+    // previously, games of this type had to be doubled. The first 4 banks needed to be duplicated at the end of the ROM
+      return (bank & 3) * 16384;
+  }
+  
   return bank * 16384;
 }
 
