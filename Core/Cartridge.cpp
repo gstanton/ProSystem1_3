@@ -94,7 +94,7 @@ static void cartridge_ReadHeader(const byte* header) {
   }
   cartridge_title = temp;
   
-  cartridge_size  = header[49] << 32;
+  cartridge_size  = header[49] << 24;
   cartridge_size |= header[50] << 16;
   cartridge_size |= header[51] << 8;
   cartridge_size |= header[52];
