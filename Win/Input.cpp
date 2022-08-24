@@ -213,7 +213,7 @@ BOOL CALLBACK InitJoysticksListUser(const DIDEVICEINSTANCE*
 // ----------------------------------------------------------------------------
 // InitializeControllerDialog
 // ----------------------------------------------------------------------------
-static input_InitializeControllerDialog(HWND hDialog, byte controller) {
+static void input_InitializeControllerDialog(HWND hDialog, byte controller) {
   std::string title = "Controller " + common_Format(controller);
   HWND hCombo;
   int i;
