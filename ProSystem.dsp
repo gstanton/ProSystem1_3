@@ -109,6 +109,14 @@ SOURCE=.\Core\Bios.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Core\BupChip.cpp
+# End Source File
+# Begin Source File
+
+SOURCE=.\Core\BupChip.h
+# End Source File
+# Begin Source File
+
 SOURCE=.\Core\Cartridge.cpp
 # End Source File
 # Begin Source File
@@ -338,6 +346,10 @@ SOURCE=.\Lib\HtmlHelp.h
 # Begin Source File
 
 SOURCE=.\Lib\Ioapi.h
+# End Source File
+# Begin Source File
+
+SOURCE=.\Lib\stdint.h
 # End Source File
 # Begin Source File
 
