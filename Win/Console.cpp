@@ -196,7 +196,7 @@ static void console_Open( ) {
   openDialog.lpstrFile = path;
   openDialog.nMaxFile = _MAX_PATH;
   openDialog.nMaxFileTitle = _MAX_PATH;
-  openDialog.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+  openDialog.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
   if(!cartridge_IsLoaded( )) {
     openDialog.lpstrInitialDir = console_recent[0].c_str( );
   }
@@ -225,7 +225,7 @@ static void console_Load( ) {
   loadDialog.lpstrFile = path;
   loadDialog.nMaxFile = _MAX_PATH;
   loadDialog.nMaxFileTitle = _MAX_PATH;
-  loadDialog.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
+  loadDialog.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
   loadDialog.lpstrInitialDir = console_savePath.c_str( );
 
   if(GetOpenFileName(&loadDialog)) {
@@ -355,7 +355,7 @@ static void console_OpenPalette( ) {
   openDialog.lpstrFile = path;
   openDialog.nMaxFile = _MAX_PATH;
   openDialog.nMaxFileTitle = _MAX_PATH;
-  openDialog.Flags = OFN_EXPLORER | OFN_ENABLEHOOK | OFN_SHOWHELP;
+  openDialog.Flags = OFN_EXPLORER | OFN_ENABLEHOOK | OFN_SHOWHELP | OFN_NOCHANGEDIR;
   openDialog.lpstrTitle = "Palette";
   openDialog.lCustData = false;
   openDialog.lpfnHook = console_OpenPaletteHook;
@@ -481,7 +481,7 @@ static void console_OpenBios( ) {
   biosDialog.lpstrFile = path;
   biosDialog.nMaxFile = _MAX_PATH;
   biosDialog.nMaxFileTitle = _MAX_PATH;
-  biosDialog.Flags = OFN_EXPLORER | OFN_ENABLEHOOK | OFN_SHOWHELP;
+  biosDialog.Flags = OFN_EXPLORER | OFN_ENABLEHOOK | OFN_SHOWHELP | OFN_NOCHANGEDIR;
   biosDialog.lpstrTitle = "Bios";
   biosDialog.lCustData = false;
   biosDialog.lpfnHook = console_OpenHook;  
@@ -562,7 +562,7 @@ static void console_OpenDatabase( ) {
   databaseDialog.lpstrFile = path;
   databaseDialog.nMaxFile = _MAX_PATH;
   databaseDialog.nMaxFileTitle = _MAX_PATH;
-  databaseDialog.Flags = OFN_EXPLORER | OFN_ENABLEHOOK | OFN_SHOWHELP;
+  databaseDialog.Flags = OFN_EXPLORER | OFN_ENABLEHOOK | OFN_SHOWHELP | OFN_NOCHANGEDIR;
   databaseDialog.lpstrTitle = "Database";
   databaseDialog.lCustData = false;
   databaseDialog.lpfnHook = console_OpenHook;  
