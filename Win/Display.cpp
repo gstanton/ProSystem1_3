@@ -645,7 +645,7 @@ bool display_ResetPalette( ) {
 // TakeScreenshot
 // ----------------------------------------------------------------------------
 bool display_TakeScreenshot(std::string filename) {
-  if(filename.empty( ) || filename.length == 0) {
+  if(filename.empty( )) {
     logger_LogError(IDS_DISPLAY30,"");
     return false;
   }
