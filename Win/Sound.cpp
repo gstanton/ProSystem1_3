@@ -27,7 +27,7 @@
 
 byte sound_latency = SOUND_LATENCY_VERY_LOW;
 
-static const WAVEFORMATEX SOUND_DEFAULT_FORMAT = {WAVE_FORMAT_PCM, 1, 44100, 44100, 1, 8, 0};
+static const WAVEFORMATEX SOUND_DEFAULT_FORMAT = {WAVE_FORMAT_PCM, 2, 44100, 44100 * 4, 4, 16, 0};
 static LPDIRECTSOUND sound_dsound = NULL;
 static LPDIRECTSOUNDBUFFER sound_primaryBuffer = NULL;
 static LPDIRECTSOUNDBUFFER sound_buffer = NULL;
@@ -50,14 +50,15 @@ static uint sound_GetSampleLength(uint length, uint unit, uint unitMax) {
 // ----------------------------------------------------------------------------
 // Resample
 // ----------------------------------------------------------------------------
-static void sound_Resample(const byte* source, byte* target, int length) {
+static void sound_Resample(const byte* source, short* target, int length) {
   int measurement = sound_format.nSamplesPerSec;
   int sourceIndex = 0;
   int targetIndex = 0;
   
   while(targetIndex < length) {
     if(measurement >= 31440) {
-      target[targetIndex++] = source[sourceIndex];
+      target[targetIndex * 2 + 0] = target[targetIndex * 2 + 1] = short(int(source[sourceIndex]) << 7);
+      targetIndex++;
       measurement -= 31440;
     }
     else {
@@ -185,7 +186,7 @@ bool sound_SetFormat(WAVEFORMATEX format) {
   secondaryDesc.dwReserved = 0;
   secondaryDesc.dwSize = sizeof(DSBUFFERDESC);
   secondaryDesc.dwFlags = DSBCAPS_GLOBALFOCUS;
-  secondaryDesc.dwBufferBytes = format.nSamplesPerSec;
+  secondaryDesc.dwBufferBytes = format.nSamplesPerSec * 4;
   secondaryDesc.lpwfxFormat = &format;
   
   hr = sound_dsound->CreateSoundBuffer(&secondaryDesc, &sound_buffer, NULL);
@@ -216,25 +217,25 @@ bool sound_Store( ) {
     return false;
   }
     
-  byte sample[1920];
+  short sample[3840];
   uint length = sound_GetSampleLength(sound_format.nSamplesPerSec, prosystem_frame, prosystem_frequency);
   sound_Resample(tia_buffer, sample, length);
   
   if(cartridge_pokey) {
-    byte pokeySample[1920];
+    short pokeySample[3840];
     sound_Resample(pokey_buffer, pokeySample, length);
-    for(int index = 0; index < length; index++) {
+    for(int index = 0; index < length * 2; index++) {
       sample[index] += pokeySample[index];
       sample[index] = sample[index] / 2;
     }
   }
   
   DWORD lockCount = 0;
-  byte* lockStream = NULL;
+  short* lockStream = NULL;
   DWORD wrapCount = 0;
-  byte* wrapStream = NULL;
+  short* wrapStream = NULL;
   
-  HRESULT hr = sound_buffer->Lock(sound_counter, length, (void**)&lockStream, &lockCount, (void**)&wrapStream, &wrapCount, 0);
+  HRESULT hr = sound_buffer->Lock(sound_counter * 4, length * 4, (void**)&lockStream, &lockCount, (void**)&wrapStream, &wrapCount, 0);
   if(FAILED(hr) || lockStream == NULL) {
     logger_LogError(IDS_SOUND12,"");
     logger_LogError("",common_Format(hr));
@@ -244,11 +245,11 @@ bool sound_Store( ) {
   }
 
   uint bufferCounter = 0;
-  for(uint lockIndex = 0; lockIndex < lockCount; lockIndex++) {
+  for(uint lockIndex = 0; lockIndex < lockCount / 2; lockIndex++) {
     lockStream[lockIndex] = sample[bufferCounter++];
   }
   
-  for(uint wrapIndex = 0; wrapIndex < wrapCount; wrapIndex++) {
+  for(uint wrapIndex = 0; wrapIndex < wrapCount / 2; wrapIndex++) {
     wrapStream[wrapIndex] = sample[bufferCounter++];
   }
   
@@ -286,7 +287,7 @@ bool sound_Clear( ) {
     return false;
   }
 
-  byte* lockStream = NULL;  
+  short* lockStream = NULL;
   DWORD lockCount = 0;
   HRESULT hr = sound_buffer->Lock(0, sound_format.nSamplesPerSec, (void**)&lockStream, &lockCount, NULL, NULL, DSBLOCK_ENTIREBUFFER);
   if(FAILED(hr) || lockStream == NULL) {
@@ -385,7 +386,7 @@ bool sound_Stop( ) {
 // ----------------------------------------------------------------------------
 bool sound_SetSampleRate(uint rate) {
   sound_format.nSamplesPerSec = rate;
-  sound_format.nAvgBytesPerSec = rate;
+  sound_format.nAvgBytesPerSec = rate * 4;
   return sound_SetFormat(sound_format);
 }
 
