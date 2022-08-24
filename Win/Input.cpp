@@ -914,7 +914,8 @@ bool input_GetKeyboardState(byte* input) {
   }
 
   // Check for User Keys
-  for(int index = 0; index < 2; index++) {
+  int index;
+  for(index = 0; index < 2; index++) {
     if ( !user_devices[index] ) {
       if ( (keyboard[user_keys[index]]) ) {
         if ( !user_modifiers[index] ) {

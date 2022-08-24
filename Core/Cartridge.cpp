@@ -147,7 +147,8 @@ static bool cartridge_Load(const byte* data, uint size) {
   cartridge_Release( );
   
   byte header[128] = {0};
-  for(int index = 0; index < 128; index++) {
+  int index;
+  for(index = 0; index < 128; index++) {
     header[index] = data[index];
   }
 
