@@ -191,7 +191,7 @@ static void console_Open( ) {
   OPENFILENAME openDialog = {0};
   openDialog.lStructSize = sizeof(OPENFILENAME);
   openDialog.hwndOwner = console_hWnd;
-  openDialog.lpstrFilter = "All Files (*.*)\0*.*\0Atari Files (*.a78)\0*.a78\0Zip Files (*.zip)\0*.zip\0";
+  openDialog.lpstrFilter = "All Files (*.*)\0*.*\0Atari Files (*.a78, *.cdf)\0*.a78;*.cdf\0Zip Files (*.zip)\0*.zip\0";
   openDialog.nFilterIndex = filterIndex;
   openDialog.lpstrFile = path;
   openDialog.nMaxFile = _MAX_PATH;

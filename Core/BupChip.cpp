@@ -48,13 +48,20 @@ byte bupchip_current_song;
 short bupchip_buffer[CORETONE_BUFFER_LEN * 4];
 
 // ----------------------------------------------------------------------------
-// Init
+// InitFromCDF
 // ----------------------------------------------------------------------------
-bool bupchip_Init() {
+bool bupchip_InitFromCDF(std::istringstream &cdf, const char *workingDir) {
   size_t songIndex = 0;
+  std::string line;
   std::vector<BupchipFileContents> fileData;
 
-  // TODO: Load song list from CDF.
+  while(cartridge_GetNextNonemptyLine(cdf, line)) {
+    BupchipFileContents contents;
+    if(!cartridge_ReadFile(&contents.data, &contents.size, line.c_str( ), workingDir)) {
+      goto err;
+    }
+    fileData.push_back(contents);
+  }
 
   if(fileData.size( ) < 2) {
     goto err;

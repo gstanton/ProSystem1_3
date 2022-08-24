@@ -51,6 +51,7 @@
 
 #include <Stdio.h>
 #include <String>
+#include <sstream>
 #include "Equates.h"
 #include "Memory.h"
 #include "Hash.h"
@@ -62,6 +63,8 @@ typedef unsigned char byte;
 typedef unsigned short word;
 typedef unsigned int uint;
 
+extern bool cartridge_GetNextNonemptyLine(std::istringstream& stream, std::string& line);
+extern bool cartridge_ReadFile(byte **outData, size_t *outSize, const char *subpath, const char *relativeTo);
 extern byte cartridge_LoadROM(uint address);
 extern bool cartridge_Load(std::string filename);
 extern void cartridge_Store( );

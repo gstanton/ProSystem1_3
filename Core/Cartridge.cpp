@@ -214,6 +214,112 @@ if (cartridge_CC2(header)) {
 }
 
 // ----------------------------------------------------------------------------
+// GetNextNonemptyLine
+// ----------------------------------------------------------------------------
+bool cartridge_GetNextNonemptyLine(std::istringstream& stream, std::string& line) {
+  do {
+    if(!std::getline(stream, line)) {
+      return false;
+    }
+    if(!line.empty( ) && line[line.size( ) - 1] == '\r') {
+      line.resize(line.size( ) - 1);
+    }
+  } while(line.empty( ));
+  return true;
+}
+
+// ----------------------------------------------------------------------------
+// ReadFile
+// ----------------------------------------------------------------------------
+bool cartridge_ReadFile(byte **outData, size_t *outSize, const char *subpath, const char *relativeTo) {
+  std::string path(relativeTo);
+#ifdef _WIN32
+  path += "\\";
+#else
+  path += "/";
+#endif
+
+  path.append(subpath);
+
+  std::ifstream file(path.c_str( ), std::ios::binary);
+  if(!file) {
+    return false;
+  }
+  std::streampos beginPos = file.tellg( );
+  file.seekg(0, std::ios::end);
+  std::streampos end_pos = file.tellg( );
+  file.seekg(0, std::ios::beg);
+  size_t fileSize = size_t(end_pos - beginPos);
+  byte *data = new byte[fileSize];
+  if(!file.read((char *)data, fileSize)) {
+    delete [ ] data;
+    return false;
+  }
+
+  *outData = data;
+  *outSize = fileSize;
+  return true;
+}
+
+// ----------------------------------------------------------------------------
+// LoadFromCDF
+// ----------------------------------------------------------------------------
+static bool cartridge_LoadFromCDF(const byte* data, uint size, const char *workingDir) {
+  static const char *cartridgeTypes[ ] = {
+    "EMPTY",
+    "SUPER",
+    NULL,
+    NULL,
+    NULL,
+    "ABSOLUTE",
+    "ACTIVISION",
+    "SOUPER",
+  };
+
+  std::string string((const char *)data, size);
+  std::istringstream data_stream(string);
+  std::string line;
+  if(!cartridge_GetNextNonemptyLine(data_stream, line)) {
+    return false;
+  }
+  if(line != "ProSystem") {
+    return false;
+  }
+  if(!cartridge_GetNextNonemptyLine(data_stream, line)) {
+    return false;
+  }
+  for(int i = 0; i < sizeof(cartridgeTypes) / sizeof(cartridgeTypes[0]); i++) {
+    if(cartridgeTypes[i] != NULL && std::equal(line.begin( ), line.end( ), cartridgeTypes[i])) {
+      cartridge_type = i;
+      break;
+    }
+  }
+  if(!cartridge_GetNextNonemptyLine(data_stream, line)) {
+    return false;
+  }
+  cartridge_title = line;
+
+  if(!cartridge_GetNextNonemptyLine(data_stream, line)) {
+    return false;
+  }
+  size_t cartSize;
+  if(!cartridge_ReadFile(&cartridge_buffer, &cartSize, line.c_str( ), workingDir)) {
+    return false;
+  }
+  cartridge_size = uint(cartSize);
+  cartridge_digest = hash_Compute(cartridge_buffer, cartridge_size);
+
+  cartridge_bupchip = cartridge_GetNextNonemptyLine(data_stream, line) && line == "CORETONE";
+  if(cartridge_bupchip) {
+    if(!bupchip_InitFromCDF(data_stream, workingDir)) {
+      delete [ ] cartridge_buffer;
+      return false;
+    }
+  }
+  return true;
+}
+
+// ----------------------------------------------------------------------------
 // LoadROM
 // ----------------------------------------------------------------------------
 byte cartridge_LoadROM(uint address) {
@@ -271,12 +377,27 @@ bool cartridge_Load(std::string filename) {
     data = new byte[size];
     archive_Uncompress(filename, data, size);
   }
-  
-  if(!cartridge_Load(data, size)) {
-    logger_LogError(IDS_CARTRIDGE7,"");
-    delete [ ] data;
-    return false;
+
+  if(size >= 10 && std::equal(&data[0], &data[9], "ProSystem")) {
+    size_t slashPos = filename.find_last_of("\\/");
+    std::string workingDir;
+    if(slashPos != std::string::npos) {
+      workingDir = filename.substr(0, slashPos);
+    }
+
+    if(!cartridge_LoadFromCDF(data, size, workingDir.c_str( ))) {
+      delete [ ] data;
+      return false;
+    }
   }
+  else {
+    if(!cartridge_Load(data, size)) {
+      logger_LogError(IDS_CARTRIDGE7,"");
+      delete [ ] data;
+      return false;
+    }
+  }
+
   if(data != NULL) {
     delete [ ] data;
   }
