@@ -46,7 +46,24 @@ static byte maria_wmode;
 // ReadByte
 // ----------------------------------------------------------------------------
 static byte maria_ReadByte(word address) {
-  return memory_ram[address];
+  if(cartridge_type != CARTRIDGE_TYPE_SOUPER) {
+    return memory_ram[address];
+  }
+  if((cartridge_souper_mode & CARTRIDGE_SOUPER_MODE_MFT) == 0 || address < 0x8000 ||
+      ((cartridge_souper_mode & CARTRIDGE_SOUPER_MODE_CHR) == 0 && address < 0xc000)) {
+    return memory_Read(address);
+  }
+  if(address >= 0xc000) {
+    // EXRAM
+    return memory_Read(address - 0x8000);
+  }
+  if(address < 0xa000) {
+    // Fixed ROM
+    return memory_Read(address + 0x4000);
+  }
+  uint page = word(cartridge_souper_chr_bank[(address & 0x80) != 0? 1: 0]);
+  uint chrOffset = (((page & 0xfe) << 4) | (page & 1)) << 7;
+  return cartridge_LoadROM((address & 0x0f7f) | chrOffset);
 }
 
 // ----------------------------------------------------------------------------

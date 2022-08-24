@@ -23,6 +23,7 @@
 // Cartridge.cpp
 // ----------------------------------------------------------------------------
 #include "Cartridge.h"
+#include <fstream>
 
 std::string cartridge_title;
 std::string cartridge_description;
@@ -37,7 +38,12 @@ byte cartridge_controller[2];
 byte cartridge_bank;
 uint cartridge_flags;
 
-static byte* cartridge_buffer = NULL;
+// SOUPER-specific stuff, used for "Rikki & Vikki"
+byte cartridge_souper_chr_bank[2];
+byte cartridge_souper_mode;
+byte cartridge_souper_ram_page_bank[2];
+
+byte* cartridge_buffer = NULL;
 static uint cartridge_size = 0;
 
 // ----------------------------------------------------------------------------
@@ -83,6 +89,31 @@ static void cartridge_WriteBank(word address, byte bank) {
     cartridge_bank = bank;
   }
 }
+// ----------------------------------------------------------------------------
+// SOUPER StoreChrBank
+// ----------------------------------------------------------------------------
+static void cartridge_souper_StoreChrBank(byte page, byte bank) {
+  if(page < 2) {
+    cartridge_souper_chr_bank[page] = bank;
+  }
+}
+
+// ----------------------------------------------------------------------------
+// SOUPER SetMode
+// ----------------------------------------------------------------------------
+static void cartridge_souper_SetMode(byte data) {
+  cartridge_souper_mode = data;
+}
+
+// ----------------------------------------------------------------------------
+// SOUPER SetVideoPageBank
+// ----------------------------------------------------------------------------
+static void cartridge_souper_SetRamPageBank(byte which, byte data) {
+  if(which < 2) {
+    cartridge_souper_ram_page_bank[which] = data & 7;
+  }
+}
+
 
 // ----------------------------------------------------------------------------
 // ReadHeader
@@ -123,11 +154,14 @@ static void cartridge_ReadHeader(const byte* header) {
     else if(header[53] == 2) {
       cartridge_type = CARTRIDGE_TYPE_ACTIVISION;
     }
+    else if(header[53] == 16) {
+      cartridge_type = CARTRIDGE_TYPE_SOUPER;
+    }
     else {
       cartridge_type = CARTRIDGE_TYPE_NORMAL;
     }
   }
-  
+
   cartridge_pokey = (header[54] & 1)? true: false;
   cartridge_controller[0] = header[55];
   cartridge_controller[1] = header[56];
@@ -175,6 +209,16 @@ if (cartridge_CC2(header)) {
   cartridge_digest = hash_Compute(cartridge_buffer, cartridge_size);
   
   return true;
+}
+
+// ----------------------------------------------------------------------------
+// LoadROM
+// ----------------------------------------------------------------------------
+byte cartridge_LoadROM(uint address) {
+  if(address >= cartridge_size) {
+    return 0;
+  }
+  return cartridge_buffer[address];
 }
 
 // ----------------------------------------------------------------------------
@@ -283,6 +327,11 @@ void cartridge_Store( ) {
         memory_WriteROM(57344, 8192, cartridge_buffer + 114688);
       }
       break;
+    case CARTRIDGE_TYPE_SOUPER:
+      memory_WriteROM(0xc000, 0x4000, cartridge_buffer + cartridge_GetBankOffset(31));
+      memory_WriteROM(0x8000, 0x4000, cartridge_buffer + cartridge_GetBankOffset(0));
+      memory_ClearROM(0x4000, 0x4000);
+      break;
   }
 }
 
@@ -311,6 +360,35 @@ void cartridge_Write(word address, byte data) {
     case CARTRIDGE_TYPE_ACTIVISION:
       if(address >= 65408) {
         cartridge_StoreBank(address & 7);
+      }
+      break;
+    case CARTRIDGE_TYPE_SOUPER:
+      if(address >= 0x4000 && address < 0x8000) {
+          memory_souper_ram[memory_souper_GetRamAddress(address)] = data;
+          break;
+      }
+
+      switch(address) {
+        case CARTRIDGE_SOUPER_BANK_SEL:
+          cartridge_StoreBank(data & 31);
+          break;
+        case CARTRIDGE_SOUPER_CHR_A_SEL:
+          cartridge_souper_StoreChrBank(0, data);
+          break;
+        case CARTRIDGE_SOUPER_CHR_B_SEL:
+          cartridge_souper_StoreChrBank(1, data);
+          break;
+        case CARTRIDGE_SOUPER_MODE_SEL:
+          cartridge_souper_SetMode(data);
+          break;
+        case CARTRIDGE_SOUPER_EXRAM_V_SEL:
+          cartridge_souper_SetRamPageBank(0, data);
+          break;
+        case CARTRIDGE_SOUPER_EXRAM_D_SEL:
+          cartridge_souper_SetRamPageBank(1, data);
+          break;
+        case CARTRIDGE_SOUPER_AUDIO_CMD:
+          break;
       }
       break;
   }
@@ -370,6 +448,9 @@ void cartridge_StoreBank(byte bank) {
       break;
     case CARTRIDGE_TYPE_ACTIVISION:
       cartridge_WriteBank(40960, bank);
+      break;
+    case CARTRIDGE_TYPE_SOUPER:
+      cartridge_WriteBank(32768, bank);
       break;
   }  
 }

@@ -127,7 +127,7 @@ bool prosystem_Save(std::string filename, bool compress) {
 
   logger_LogInfo(IDS_PROSYSTEM2,filename);
   
-  byte buffer[32829] = {0};
+  byte buffer[49218] = {0};
   uint size = 0;
   
   uint index;
@@ -166,6 +166,16 @@ bool prosystem_Save(std::string filename, bool compress) {
       buffer[size + index] = memory_ram[16384 + index];
     } 
     size += 16384;
+  } else if(cartridge_type == CARTRIDGE_TYPE_SOUPER) {
+    buffer[size++] = cartridge_souper_chr_bank[0];
+    buffer[size++] = cartridge_souper_chr_bank[1];
+    buffer[size++] = cartridge_souper_mode;
+    buffer[size++] = cartridge_souper_ram_page_bank[0];
+    buffer[size++] = cartridge_souper_ram_page_bank[1];
+    for(index = 0; index < sizeof(memory_souper_ram); index++) {
+      buffer[size + index] = memory_souper_ram[index];
+    }
+    size += sizeof(memory_souper_ram);
   }
   
   if(!compress) {
@@ -204,7 +214,7 @@ bool prosystem_Load(const std::string filename) {
  
   logger_LogInfo(IDS_PROSYSTEM6,filename);
   
-  byte buffer[32829] = {0};
+  byte buffer[49218] = {0};
   uint size = archive_GetUncompressedFileSize(filename);
   if(size == 0) {
     FILE* file = fopen(filename.c_str( ), "rb");
@@ -226,7 +236,7 @@ bool prosystem_Load(const std::string filename) {
       return false;
     }
 
-    if(size != 16445 && size != 32829) {
+    if(size != 16445 && size != 32829 && size != 49218) {
       fclose(file);
       logger_LogError(IDS_PROSYSTEM10,"");
       return false;
@@ -239,7 +249,7 @@ bool prosystem_Load(const std::string filename) {
     }
     fclose(file);
   }  
-  else if(size == 16445 || size == 32829) {
+  else if(size == 16445 || size == 32829 || size == 49218) {
     archive_Uncompress(filename, buffer, size);
   }
   else {
@@ -299,7 +309,16 @@ bool prosystem_Load(const std::string filename) {
       memory_ram[16384 + index] = buffer[offset + index];
     }
     offset += 16384; 
-  }  
+  } else if(cartridge_type == CARTRIDGE_TYPE_SOUPER) {
+    cartridge_souper_chr_bank[0] = buffer[offset++];
+    cartridge_souper_chr_bank[1] = buffer[offset++];
+    cartridge_souper_mode = buffer[offset++];
+    cartridge_souper_ram_page_bank[0] = buffer[offset++];
+    cartridge_souper_ram_page_bank[1] = buffer[offset++];
+    for(index = 0; index < sizeof(memory_souper_ram); index++) {
+      memory_souper_ram[index] = buffer[offset++];
+    }
+  }
 
   return true;
 }
