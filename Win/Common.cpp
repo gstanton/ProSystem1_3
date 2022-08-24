@@ -80,7 +80,7 @@ std::string common_Format(bool value) {
 // Format
 // ----------------------------------------------------------------------------
 std::string common_Format(HRESULT result) {
-  char buffer[10] = {0};
+  char buffer[11] = {0};
   sprintf(buffer, "%#8x", result);
   return std::string(buffer);
 }
