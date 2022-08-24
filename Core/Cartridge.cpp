@@ -23,6 +23,7 @@
 // Cartridge.cpp
 // ----------------------------------------------------------------------------
 #include "Cartridge.h"
+#include "BupChip.h"
 #include <fstream>
 
 std::string cartridge_title;
@@ -37,6 +38,7 @@ bool cartridge_pokey;
 byte cartridge_controller[2];
 byte cartridge_bank;
 uint cartridge_flags;
+bool cartridge_bupchip;
 
 // SOUPER-specific stuff, used for "Rikki & Vikki"
 byte cartridge_souper_chr_bank[2];
@@ -388,6 +390,7 @@ void cartridge_Write(word address, byte data) {
           cartridge_souper_SetRamPageBank(1, data);
           break;
         case CARTRIDGE_SOUPER_AUDIO_CMD:
+          bupchip_ProcessAudioCommand(data);
           break;
       }
       break;

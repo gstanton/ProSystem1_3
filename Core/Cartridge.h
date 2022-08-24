@@ -81,6 +81,7 @@ extern bool cartridge_pokey;
 extern byte cartridge_controller[2];
 extern byte cartridge_bank;
 extern uint cartridge_flags;
+extern bool cartridge_bupchip;
 extern byte cartridge_souper_chr_bank[2];
 extern byte cartridge_souper_mode;
 extern byte cartridge_souper_ram_page_bank[2];

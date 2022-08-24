@@ -23,6 +23,8 @@
 // Sound.cpp
 // ----------------------------------------------------------------------------
 #include "Sound.h"
+#include "BupChip.h"
+#include <cmath>
 #define SOUND_LATENCY_SCALE 4
 
 byte sound_latency = SOUND_LATENCY_VERY_LOW;
@@ -64,6 +66,34 @@ static void sound_Resample(const byte* source, short* target, int length) {
     else {
       sourceIndex++;
       measurement += sound_format.nSamplesPerSec;
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------
+// Lerp
+// ----------------------------------------------------------------------------
+static short sound_Lerp(short a, short b, float t) {
+  return short(floorf(float(a) + float(b - a) * t + 0.5f));
+}
+
+// ----------------------------------------------------------------------------
+// ResampleBupChip
+// ----------------------------------------------------------------------------
+static void sound_ResampleBupChip(const short* source, short* target, int length) {
+  uint bupchipBufferSize = CORETONE_BUFFER_SAMPLES * 4;
+
+  for(int targetIndex = 0; targetIndex < length; targetIndex++) {
+    float sourceIndex = float(targetIndex) / float(length) * float(bupchipBufferSize);
+    uint sourceLo = uint(floorf(sourceIndex)), sourceHi = uint(ceilf(sourceIndex));
+    if(sourceHi >= bupchipBufferSize) {
+      sourceHi = bupchipBufferSize;
+    }
+    float t = sourceIndex - float(sourceLo);
+
+    for(int channel = 0; channel < 2; channel++) {
+      target[targetIndex * 2 + channel] =
+        sound_Lerp(source[sourceLo * 2 + channel], source[sourceHi * 2 + channel], t);
     }
   }
 }
@@ -226,7 +256,14 @@ bool sound_Store( ) {
     sound_Resample(pokey_buffer, pokeySample, length);
     for(int index = 0; index < length * 2; index++) {
       sample[index] += pokeySample[index];
-      sample[index] = sample[index] / 2;
+    }
+  }
+
+  if(cartridge_bupchip) {
+    short bupchipSample[3840];
+    sound_ResampleBupChip(bupchip_buffer, bupchipSample, length);
+    for(int index = 0; index < length * 2; index++) {
+      sample[index] += bupchipSample[index];
     }
   }
   
