@@ -11,10 +11,10 @@
  * Operating Parameters
  ******************************************************************************/
 /* This indicates the stack depth used to track music script loops,
- * the default of four should be adequate for most users.
+ * the default of 16 should be adequate for most users.
  */
 #ifndef CORETONE_MUSIC_STACKDEPTH
-	#define CORETONE_MUSIC_STACKDEPTH		4
+	#define CORETONE_MUSIC_STACKDEPTH		16
 #endif
 
 /******************************************************************************

@@ -11,10 +11,10 @@
  * Operating Parameters
  ******************************************************************************/
 /* This indicates the stack depth used to track patch script loops,
- * the default of four should be adequate for most users.
+ * the default of 16 should be adequate for most users.
  */
 #ifndef CORETONE_PATCH_STACKDEPTH
-	#define CORETONE_PATCH_STACKDEPTH		4
+	#define CORETONE_PATCH_STACKDEPTH		16
 #endif
 
 /******************************************************************************
