@@ -190,7 +190,9 @@ static uint configuration_ReadPrivateUint(std::string section, std::string name,
 // ----------------------------------------------------------------------------
 std::string configuration_Load(std::string filename, std::string commandLine) {
   configuration_filename = filename; 
-  for(uint index = 0; index < 10; index++) {
+
+  uint index;
+  for(index = 0; index < 10; index++) {
     console_recent[index] = configuration_ReadPrivatePath(CONFIGURATION_SECTION_RECENT, "Recent" + common_Format(index), "");
   }
   
@@ -267,7 +269,9 @@ std::string configuration_Load(std::string filename, std::string commandLine) {
 // ----------------------------------------------------------------------------
 void configuration_Save(std::string filename) {
   configuration_filename = filename; 
-  for(uint index = 0; index < 10; index++) {
+
+  uint index;
+  for(index = 0; index < 10; index++) {
     configuration_WritePrivatePath(CONFIGURATION_SECTION_RECENT, "Recent" + common_Format(index), console_recent[index]);
   }
 

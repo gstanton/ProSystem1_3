@@ -52,6 +52,7 @@ typedef enum {
   JOY_BUTTON_12
 } e_joy_value;
 
+#define DIRECTINPUT_VERSION 0x0700
 #include <Windows.h>
 #include <DInput.h>
 #include "Resource.h"

@@ -25,6 +25,7 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 #define MEMORY_SIZE 65536
+#define MEMORY_SOUPER_EXRAM_SIZE 32768
 #define NULL 0
 
 #include "Equates.h"
@@ -42,7 +43,9 @@ extern byte memory_Read(word address);
 extern void memory_Write(word address, byte data);
 extern void memory_WriteROM(word address, word size, const byte* data);
 extern void memory_ClearROM(word address, word size);
+extern word memory_souper_GetRamAddress(word address);
 extern byte memory_ram[MEMORY_SIZE];
 extern byte memory_rom[MEMORY_SIZE];
+extern byte memory_souper_ram[MEMORY_SOUPER_EXRAM_SIZE];
 
 #endif

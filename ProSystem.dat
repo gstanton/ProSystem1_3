@@ -710,6 +710,14 @@ controller1=1
 controller2=1
 region=0
 flags=0
+[b3bc889e9cc498636990c5a4d980e85c]
+title=Rikki & Vikki
+type=7
+pokey=false
+controller1=1
+controller2=1
+region=0
+flags=0
 [66ecaafe1b82ae68ffc96267aaf7a4d7]
 title=Robotron                        
 type=0

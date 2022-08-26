@@ -22,6 +22,7 @@
 // ----------------------------------------------------------------------------
 // Input.cpp
 // ----------------------------------------------------------------------------
+#define DIRECTINPUT_VERSION 0x0700
 #include <dinput.h> 
 #include "Input.h"
 #include "Console.h"
@@ -213,7 +214,7 @@ BOOL CALLBACK InitJoysticksListUser(const DIDEVICEINSTANCE*
 // ----------------------------------------------------------------------------
 // InitializeControllerDialog
 // ----------------------------------------------------------------------------
-static input_InitializeControllerDialog(HWND hDialog, byte controller) {
+static void input_InitializeControllerDialog(HWND hDialog, byte controller) {
   std::string title = "Controller " + common_Format(controller);
   HWND hCombo;
   int i;
@@ -914,7 +915,8 @@ bool input_GetKeyboardState(byte* input) {
   }
 
   // Check for User Keys
-  for(int index = 0; index < 2; index++) {
+  int index;
+  for(index = 0; index < 2; index++) {
     if ( !user_devices[index] ) {
       if ( (keyboard[user_keys[index]]) ) {
         if ( !user_modifiers[index] ) {

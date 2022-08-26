@@ -31,15 +31,27 @@
 #define CARTRIDGE_TYPE_SUPERCART_ROM 4
 #define CARTRIDGE_TYPE_ABSOLUTE 5
 #define CARTRIDGE_TYPE_ACTIVISION 6
+#define CARTRIDGE_TYPE_SOUPER 7             // Used by "Rikki & Vikki"
 #define CARTRIDGE_CONTROLLER_NONE 0
 #define CARTRIDGE_CONTROLLER_JOYSTICK 1
 #define CARTRIDGE_CONTROLLER_LIGHTGUN 2
 #define CARTRIDGE_WSYNC_MASK 2
 #define CARTRIDGE_CYCLE_STEALING_MASK 1
+#define CARTRIDGE_SOUPER_BANK_SEL 0x8000
+#define CARTRIDGE_SOUPER_CHR_A_SEL 0x8001
+#define CARTRIDGE_SOUPER_CHR_B_SEL 0x8002
+#define CARTRIDGE_SOUPER_MODE_SEL 0x8003
+#define CARTRIDGE_SOUPER_EXRAM_V_SEL 0x8004
+#define CARTRIDGE_SOUPER_EXRAM_D_SEL 0x8005
+#define CARTRIDGE_SOUPER_AUDIO_CMD 0x8007
+#define CARTRIDGE_SOUPER_MODE_MFT 0x1
+#define CARTRIDGE_SOUPER_MODE_CHR 0x2
+#define CARTRIDGE_SOUPER_MODE_EXS 0x4
 #define NULL 0
 
 #include <Stdio.h>
 #include <String>
+#include <sstream>
 #include "Equates.h"
 #include "Memory.h"
 #include "Hash.h"
@@ -51,6 +63,9 @@ typedef unsigned char byte;
 typedef unsigned short word;
 typedef unsigned int uint;
 
+extern bool cartridge_GetNextNonemptyLine(std::istringstream& stream, std::string& line);
+extern bool cartridge_ReadFile(byte **outData, size_t *outSize, const char *subpath, const char *relativeTo);
+extern byte cartridge_LoadROM(uint address);
 extern bool cartridge_Load(std::string filename);
 extern void cartridge_Store( );
 extern void cartridge_StoreBank(byte bank);
@@ -69,5 +84,9 @@ extern bool cartridge_pokey;
 extern byte cartridge_controller[2];
 extern byte cartridge_bank;
 extern uint cartridge_flags;
+extern bool cartridge_bupchip;
+extern byte cartridge_souper_chr_bank[2];
+extern byte cartridge_souper_mode;
+extern byte cartridge_souper_ram_page_bank[2];
 
 #endif
